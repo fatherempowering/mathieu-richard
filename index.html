@@ -189,6 +189,16 @@
       <input type="range" class="ci-slider" id="ci-stress" min="1" max="10" value="5" oninput="updateSlider('stress',this.value)">
     </div>
     <div class="ci-row">
+      <div class="ci-top">
+        <div>
+          <div class="ci-label">DOULEUR &Eacute;PAULE</div>
+          <div class="ci-sub">0=aucune &bull; 10=tr&egrave;s &eacute;lev&eacute;e</div>
+        </div>
+        <div class="ci-val" id="ci-douleur-val">0</div>
+      </div>
+      <input type="range" class="ci-slider" id="ci-douleur" min="0" max="10" value="0" oninput="updateSlider('douleur',this.value)">
+    </div>
+    <div class="ci-row">
       <div class="ci-label">NOTES DE LA SEMAINE</div>
       <div class="ci-sub" style="margin-bottom:10px">Comment tu te sens ? Points forts, difficult&eacute;s, observations</div>
       <textarea class="notes-area" id="ci-note" placeholder="Ex: Semaine difficile au travail, mais les s&eacute;ances sont solides. Le RDL &agrave; 190 lbs commence &agrave; se sentir stable..." style="height:90px"></textarea>
@@ -262,9 +272,11 @@
     </div>
     <div class="prog-chart-body">
       <div class="prog-legend">
-        <div class="prog-leg-item"><div class="prog-leg-dot" style="background:#C85A00"></div>Row</div>
+        <div class="prog-leg-item"><div class="prog-leg-dot" style="background:#C85A00"></div>Belt Squat</div>
         <div class="prog-leg-item"><div class="prog-leg-dot" style="background:#4CAF50"></div>RDL</div>
-        <div class="prog-leg-item"><div class="prog-leg-dot" style="background:#2196F3"></div>Leg Press / Goblet</div>
+        <div class="prog-leg-item"><div class="prog-leg-dot" style="background:#2196F3"></div>Leg Press</div>
+        <div class="prog-leg-item"><div class="prog-leg-dot" style="background:#8e44ad"></div>Sled Push</div>
+        <div class="prog-leg-item"><div class="prog-leg-dot" style="background:#16a085"></div>Farmer Carry</div>
       </div>
       <div class="chart-container" style="height:180px">
         <canvas id="chargesChart"></canvas>
@@ -281,6 +293,7 @@
         <div class="prog-leg-item"><div class="prog-leg-dot" style="background:#C85A00"></div>&Eacute;nergie</div>
         <div class="prog-leg-item"><div class="prog-leg-dot" style="background:#4CAF50"></div>Sommeil</div>
         <div class="prog-leg-item"><div class="prog-leg-dot" style="background:#c0392b"></div>Stress</div>
+        <div class="prog-leg-item"><div class="prog-leg-dot" style="background:#8e44ad"></div>Douleur &eacute;paule</div>
       </div>
       <div class="chart-container" style="height:180px">
         <canvas id="bilanChart"></canvas>
@@ -324,7 +337,7 @@
 </div>
 
 
-<script src="assets/data/program.config.js?v=20260512-clean1"></script>
-<script src="assets/js/app.js?v=20260512-clean1"></script>
+<script src="assets/data/program.config.js?v=20260518-mr2"></script>
+<script src="assets/js/app.js?v=20260518-mr2"></script>
 </body>
 </html>

@@ -353,7 +353,29 @@ function buildWeekNav() {
 }
 
 // ═══ SEANCE HTML BUILDER ═══════════════════════════════════
-function buildExCard(exs, wk) {
+function getPreviousExerciseValue(weekNum, seanceId, key) {
+  if(!key) return null;
+  for(let w = weekNum - 1; w >= 1; w--) {
+    if(!WEEKS[w]) continue;
+    const wk = WEEKS[w].seancesKey;
+    const record = D.seances && D.seances[wk + '_' + seanceId];
+    const value = record && record.charges ? record.charges[key] : null;
+    if(value !== undefined && value !== null && String(value).trim()) return String(value).trim();
+  }
+  return null;
+}
+
+function getExerciseTarget(ex, weekNum, seanceId) {
+  const previous = getPreviousExerciseValue(weekNum, seanceId, ex.key);
+  if(previous) return 'Base: ' + previous + ' ' + (ex.unit || 'lbs');
+  return ex.target || '';
+}
+
+function formatExerciseBadge(ex) {
+  return String(ex.sets) + 'x' + String(ex.reps);
+}
+
+function buildExCard(exs, weekNum, seanceId) {
   let h = `<div class="ex-card">
     <div class="ex-thead">
       <div class="ex-th" style="text-align:left">EXERCICE</div>
@@ -362,11 +384,13 @@ function buildExCard(exs, wk) {
     </div>`;
   exs.forEach(ex => {
     const repsStr = String(ex.reps);
-    const repsHtml = (repsStr === 'MAX' || repsStr.includes('/') || repsStr.includes(' '))
-      ? `<div style="font-size:10px;color:var(--txt2);text-align:center;padding:4px 2px">${ex.reps}</div>`
-      : `<input class="ex-editable-rep" type="number" value="${ex.reps}" min="1" max="120" data-field="reps">`;
-    const targetHtml = ex.target
-      ? `<div class="ex-target">${ex.target}</div>`
+    const numericReps = /^\d+(\.\d+)?$/.test(repsStr);
+    const repsHtml = numericReps
+      ? `<input class="ex-editable-rep" type="number" value="${ex.reps}" min="1" max="120" data-field="reps">`
+      : `<div style="font-size:10px;color:var(--txt2);text-align:center;padding:4px 2px">${ex.reps}</div>`;
+    const target = getExerciseTarget(ex, weekNum, seanceId);
+    const targetHtml = target
+      ? `<div class="ex-target">${target}</div>`
       : `<div class="ex-target" style="opacity:0.4">—</div>`;
     const inputHtml = ex.key
       ? `<div class="ex-input-wrap"><input class="ex-input" type="number" placeholder="—" data-key="${ex.key}"></div>`
@@ -385,17 +409,26 @@ function buildExCard(exs, wk) {
   return h + '</div>';
 }
 
-function buildFinisherCard(fin) {
+function buildFinisherCard(fin, weekNum, seanceId) {
   let h = `<div class="finisher-card">`;
   fin.exs.forEach(ex => {
+    const target = getExerciseTarget(ex, weekNum, seanceId);
+    const inputHtml = ex.key
+      ? `<div class="ex-input-wrap" style="width:72px"><input class="ex-input" type="number" placeholder="lbs" data-key="${ex.key}"></div>`
+      : '';
+    const timerHtml = (ex.unit === 'sec' || ex.unit === 'min')
+      ? `<button class="timer-btn" onclick="startTimer(${ex.unit==='sec'?parseInt(ex.target)||60:60},'${ex.name}')">⏱</button>`
+      : '';
     h += `<div class="fin-row">
       <div>
         <div class="fin-name">${ex.name}</div>
         ${ex.note ? `<div class="fin-note">${ex.note}</div>` : ''}
+        ${target ? `<div class="fin-note">Cible: ${target}</div>` : ''}
       </div>
       <div style="display:flex;align-items:center;gap:6px">
-        <div class="fin-badge">${ex.sets}x${ex.target||ex.reps}</div>
-        ${ex.key ? `<button class="timer-btn" onclick="startTimer(${ex.unit==='sec'?parseInt(ex.target)||60:60},'${ex.name}')">⏱</button>` : ''}
+        <div class="fin-badge">${formatExerciseBadge(ex)}</div>
+        ${inputHtml}
+        ${timerHtml}
       </div>
     </div>`;
   });
@@ -440,20 +473,20 @@ function buildSeanceHTML(weekNum, seanceId) {
     // Circuit
     if(s.circuitExs && s.circuitExs.length) {
       h += `<div class="bloc-hdr"><div class="bloc-line"></div><div class="bloc-label">${s.circuitLabel}</div><div class="bloc-line"></div></div>`;
-      h += buildExCard(s.circuitExs, wk);
+      h += buildExCard(s.circuitExs, weekNum, seanceId);
     }
   } else {
     // Regular blocs
     s.blocs.forEach(bloc => {
       h += `<div class="bloc-hdr"><div class="bloc-line"></div><div class="bloc-label">${bloc.label}</div><div class="bloc-line"></div></div>`;
-      h += buildExCard(bloc.exs, wk);
+      h += buildExCard(bloc.exs, weekNum, seanceId);
     });
   }
 
   // Finisher
   if(s.finisher && s.finisher.exs && s.finisher.exs.length) {
     h += `<div class="bloc-hdr"><div class="bloc-line"></div><div class="bloc-label" style="color:var(--orange)">${s.finisher.label}</div><div class="bloc-line"></div></div>`;
-    h += buildFinisherCard(s.finisher);
+    h += buildFinisherCard(s.finisher, weekNum, seanceId);
   }
 
   // Notes + Save
@@ -616,7 +649,9 @@ function updateSlider(key, val) {
   const el = document.getElementById('ci-' + key + '-val');
   if(!el) return;
   el.textContent = v;
-  const colors = v <= 3 ? '#c0392b' : v <= 6 ? '#e67e22' : '#27ae60';
+  const colors = key === 'douleur'
+    ? (v <= 2 ? '#27ae60' : v <= 5 ? '#e67e22' : '#c0392b')
+    : (v <= 3 ? '#c0392b' : v <= 6 ? '#e67e22' : '#27ae60');
   el.style.color = colors;
 }
 
@@ -627,8 +662,9 @@ function getCheckinFormEntry() {
   const energie = parseInt(document.getElementById('ci-energie').value);
   const sommeil = parseInt(document.getElementById('ci-sommeil').value);
   const stress = parseInt(document.getElementById('ci-stress').value);
+  const douleur = parseInt(document.getElementById('ci-douleur').value);
   const note = document.getElementById('ci-note').value;
-  return { week: getActiveWeek(), date: localDateString(), poids, energie, sommeil, stress, note };
+  return { week: getActiveWeek(), date: localDateString(), poids, energie, sommeil, stress, douleur, note };
 }
 
 function hasCheckinDraft() {
@@ -671,6 +707,8 @@ function _resetCheckinForm(poidsEl) {
     const sl = document.getElementById('ci-' + k);
     if(sl) { sl.value = 5; updateSlider(k, 5); }
   });
+  const douleurSl = document.getElementById('ci-douleur');
+  if(douleurSl) { douleurSl.value = 0; updateSlider('douleur', 0); }
   const noteEl = document.getElementById('ci-note');
   if(noteEl) noteEl.value = '';
   currentWeek = getActiveWeek();
@@ -702,7 +740,8 @@ function showLastCheckinRef() {
   const d = parseLocalDate(last.date);
   const months = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
   const dateStr = d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
-  content.innerHTML = `<strong>${escapeHTML(last.poids)} lbs</strong> · Énergie ${escapeHTML(last.energie)}/10 · Sommeil ${escapeHTML(last.sommeil)}/10 · Stress ${escapeHTML(last.stress)}/10<br><span style="font-size:11px;color:var(--txt3)">${escapeHTML(dateStr)}</span>`;
+  const douleur = last.douleur !== undefined ? last.douleur : 0;
+  content.innerHTML = `<strong>${escapeHTML(last.poids)} lbs</strong> · Énergie ${escapeHTML(last.energie)}/10 · Sommeil ${escapeHTML(last.sommeil)}/10 · Stress ${escapeHTML(last.stress)}/10 · Douleur épaule ${escapeHTML(douleur)}/10<br><span style="font-size:11px;color:var(--txt3)">${escapeHTML(dateStr)}</span>`;
   el.style.display = 'block';
 }
 
@@ -855,29 +894,35 @@ function renderCharts() {
     });
   }
   // Charges chart - collect data per week
-  const rowData = [], rdlData = [], legData = [], weekLabels = [];
-  for(let w=1;w<=12;w++) {
+  const beltData = [], rdlData = [], legData = [], sledData = [], carryData = [], weekLabels = [];
+  for(let w=1;w<=getProgramWeekCount();w++) {
     if(!WEEKS[w]) continue;
     const wk = WEEKS[w].seancesKey;
     const sa = D.seances && D.seances[wk+'_a'];
-    const sb = D.seances && D.seances[wk+'_b'];
-    if((sa && sa.done) || (sb && sb.done)) {
+    const sc = D.seances && D.seances[wk+'_c'];
+    if((sa && sa.done) || (sc && sc.done)) {
       weekLabels.push('S'+w);
-      const rowVal = sa && sa.charges && (sa.charges.a_row || sa.charges.a_cs_row);
-      const rdlVal = sa && sa.charges && sa.charges.a_rdl;
-      const legVal = sb && sb.charges && (sb.charges.b_legpress || sb.charges.b_goblet);
-      rowData.push(rowVal ? parseFloat(rowVal) : null);
+      const beltVal = sa && sa.charges && sa.charges.a_belt_squat;
+      const rdlVal = sa && sa.charges && sa.charges.a_rdl_straps;
+      const sledVal = sa && sa.charges && sa.charges.a_sled_push;
+      const legVal = sc && sc.charges && sc.charges.c_leg_press;
+      const carryVal = sc && sc.charges && sc.charges.c_farmer_carry;
+      beltData.push(beltVal ? parseFloat(beltVal) : null);
       rdlData.push(rdlVal ? parseFloat(rdlVal) : null);
       legData.push(legVal ? parseFloat(legVal) : null);
+      sledData.push(sledVal ? parseFloat(sledVal) : null);
+      carryData.push(carryVal ? parseFloat(carryVal) : null);
     }
   }
   if(cCanvas && weekLabels.length) {
     cChart = new Chart(cCanvas, {
       type: 'line',
       data: { labels: weekLabels, datasets: [
-        { label:'Row/CS Row', data:rowData, borderColor:'#C85A00', tension:.3, spanGaps:true, pointRadius:4, pointBackgroundColor:'#C85A00' },
+        { label:'Belt Squat', data:beltData, borderColor:'#C85A00', tension:.3, spanGaps:true, pointRadius:4, pointBackgroundColor:'#C85A00' },
         { label:'RDL', data:rdlData, borderColor:'#4CAF50', tension:.3, spanGaps:true, pointRadius:4, pointBackgroundColor:'#4CAF50' },
-        { label:'Leg/Goblet', data:legData, borderColor:'#2196F3', tension:.3, spanGaps:true, pointRadius:4, pointBackgroundColor:'#2196F3' },
+        { label:'Leg Press', data:legData, borderColor:'#2196F3', tension:.3, spanGaps:true, pointRadius:4, pointBackgroundColor:'#2196F3' },
+        { label:'Sled Push', data:sledData, borderColor:'#8e44ad', tension:.3, spanGaps:true, pointRadius:4, pointBackgroundColor:'#8e44ad' },
+        { label:'Farmer Carry', data:carryData, borderColor:'#16a085', tension:.3, spanGaps:true, pointRadius:4, pointBackgroundColor:'#16a085' },
       ]},
       options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{ticks:{font:{size:10}}}, y:{ticks:{font:{size:10}}} } }
     });
@@ -889,6 +934,7 @@ function renderCharts() {
         { label:'Énergie', data:cis.map(c=>c.energie), borderColor:'#C85A00', tension:.3, pointRadius:4, pointBackgroundColor:'#C85A00' },
         { label:'Sommeil', data:cis.map(c=>c.sommeil), borderColor:'#4CAF50', tension:.3, pointRadius:4, pointBackgroundColor:'#4CAF50' },
         { label:'Stress', data:cis.map(c=>c.stress), borderColor:'#c0392b', tension:.3, pointRadius:4, pointBackgroundColor:'#c0392b' },
+        { label:'Douleur épaule', data:cis.map(c=>c.douleur !== undefined ? c.douleur : 0), borderColor:'#8e44ad', tension:.3, pointRadius:4, pointBackgroundColor:'#8e44ad' },
       ]},
       options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{ticks:{font:{size:10}}}, y:{min:0,max:10,ticks:{font:{size:10}}} } }
     });
@@ -934,6 +980,7 @@ function renderHistorique() {
         <div class="hist-row"><span class="hist-label">Énergie</span><span class="hist-val">${c.energie}/10</span></div>
         <div class="hist-row"><span class="hist-label">Sommeil</span><span class="hist-val">${c.sommeil}/10</span></div>
         <div class="hist-row"><span class="hist-label">Stress</span><span class="hist-val">${c.stress}/10</span></div>
+        <div class="hist-row"><span class="hist-label">Douleur épaule</span><span class="hist-val">${c.douleur !== undefined ? c.douleur : 0}/10</span></div>
         ${c.note ? `<div class="hist-note">${escapeHTML(c.note)}</div>` : ''}
       </div>`;
     });
@@ -1124,6 +1171,7 @@ function normalizeImportedData(imported) {
       energie: Math.round(clampNumber(c.energie, 1, 10, 5)),
       sommeil: Math.round(clampNumber(c.sommeil, 1, 10, 5)),
       stress: Math.round(clampNumber(c.stress, 1, 10, 5)),
+      douleur: Math.round(clampNumber(c.douleur, 0, 10, 0)),
       note: typeof c.note === 'string' ? c.note.slice(0, 2000) : ''
     };
   }).filter(Boolean);
@@ -1321,6 +1369,7 @@ function buildReportLines(photos, photoWeek) {
     lines.push('Énergie: ' + checkin.energie + '/10');
     lines.push('Sommeil: ' + checkin.sommeil + '/10');
     lines.push('Stress: ' + checkin.stress + '/10');
+    lines.push('Douleur épaule: ' + (checkin.douleur !== undefined ? checkin.douleur : 0) + '/10');
     lines.push('Note check-in: ' + (checkin.note || 'Aucune note'));
   } else {
     lines.push('Aucun check-in enregistré pour cette semaine.');

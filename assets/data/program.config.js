@@ -32,24 +32,23 @@ function lowerA(setsBelt, repsBelt, beltTarget, splitSets, rdlSets, sledSets, sl
       ]},
       { label: 'BLOC 2 — CHAINE POSTERIEURE', exs: [
         _e('Romanian Deadlift avec straps', 'Tension legere/moderee · straps permis · epaule relachee', rdlSets, 10, 'a_rdl_straps', 'A determiner', 'lbs'),
-        _e('Bird Dog', 'Lent · bassin stable · respiration calme', 2, '8/cote', null, null, 'reps')
+        _e('Bird Dog', 'Lent · bassin stable · respiration calme', 2, '8 / côté', null, null, 'reps')
       ]}
     ],
     finisher: { label: 'FINISHER CAPACITE', exs: [
-      _e('Sled Push', sledNote, sledSets, 20, 'a_sled_push', 'A determiner', 'metres')
+      _e('Sled Push', sledNote, sledSets, '20m', 'a_sled_push', 'Poids a noter', 'lbs')
     ]}
   };
 }
 
-function recoveryB(marcheMin, physioNote, includeOptionalDay) {
+function recoveryB(breathingRounds, physioNote, includeOptionalDay) {
   const blocs = [
     { label: 'BLOC 1 — PHYSIO', exs: [
-      _e('Routine Physio Complete', physioNote, 1, 'Routine', null, 'Tolerance complete', 'reps'),
-      _e('Mobilite thoracique', 'Mouvement lent et controle · aucune provocation', 1, '5-10', null, 'A determiner', 'min')
+      _e('Routine Physio Complete', physioNote, 1, 'Routine', null, 'A completer', 'reps')
     ]},
     { label: 'BLOC 2 — SYSTEME NERVEUX', exs: [
-      _e('Marche', 'Rythme stable · respiration nasale si possible', 1, marcheMin, 'b_marche_min', 'A determiner', 'min'),
-      _e('Respiration diaphragmatique', 'Descendre le stress · expiration longue', 1, 5, null, 'Calme', 'min')
+      _e('Marche', 'Rythme stable · respiration nasale si possible', 1, 30, null, '30 min', 'min'),
+      _e('Respiration diaphragmatique', 'Descendre le stress · expiration longue', breathingRounds, 1, null, 'Calme', 'rep')
     ]}
   ];
   const finisher = includeOptionalDay
@@ -85,7 +84,7 @@ function lowerPullC(legSets, legReps, hipSets, rowSets, carrySets, extras) {
     warmup: WU.bike,
     blocs,
     finisher: { label: 'FINISHER POSTURE', exs: [
-      _e('Farmer Carry', 'Charge legere/moderee · posture haute · aucune irritation epaule', carrySets, 20, 'c_farmer_carry', 'A determiner', 'metres')
+      _e('Farmer Carry', 'Charge legere/moderee · posture haute · aucune irritation epaule', carrySets, '10m', 'c_farmer_carry', 'Poids a noter', 'lbs')
     ]}
   };
 }
@@ -100,7 +99,7 @@ window.LEGACY_WEEKS = {
     msg: MSG[1],
     seances: {
       a: lowerA(3, 10, 'RPE 5-6', 2, 3, 5, 'Effort modere · respiration controlee · finir frais'),
-      b: recoveryB('30-45', 'Controle complet du mouvement · rester sous le seuil d irritation', false),
+      b: recoveryB(2, 'Controle complet du mouvement · rester sous le seuil d irritation', false),
       c: lowerPullC(3, 12, 3, 2, 3)
     }
   },
@@ -113,7 +112,7 @@ window.LEGACY_WEEKS = {
     msg: MSG[2],
     seances: {
       a: lowerA(3, 10, 'Meme charge si tolerance bonne', 2, 3, 5, 'Meme intensite · plus fluide que S1'),
-      b: recoveryB('35-45', 'Controle complet · noter reaction 24h apres', false),
+      b: recoveryB(2, 'Controle complet · noter reaction 24h apres', false),
       c: lowerPullC(3, 12, 3, 2, 3)
     }
   },
@@ -126,7 +125,7 @@ window.LEGACY_WEEKS = {
     msg: MSG[3],
     seances: {
       a: lowerA(3, 10, '+5-10 lbs si tolerance parfaite', 3, 3, 6, 'Effort modere · ne pas chasser la fatigue'),
-      b: recoveryB('35-50', 'Qualite avant quantite · epaule calme', false),
+      b: recoveryB(3, 'Qualite avant quantite · epaule calme', false),
       c: lowerPullC(3, 12, 3, 3, 3, { label: 'BLOC 3 — STABILITE', exs: [
         _e('Reverse Sled Drag', 'Leger · genoux et hanches stables · respiration controlee', 4, 20, 'c_reverse_sled_drag', 'A determiner', 'metres')
       ]})
@@ -141,7 +140,7 @@ window.LEGACY_WEEKS = {
     msg: MSG[4],
     seances: {
       a: lowerA(4, 10, 'RPE 6', 3, 3, 6, 'Modere · arreter avant fatigue nerveuse'),
-      b: recoveryB('40-50', 'Routine propre · aucun flare-up recherche', true),
+      b: recoveryB(3, 'Routine propre · aucun flare-up recherche', true),
       c: lowerPullC(4, 10, 3, 3, 3, { label: 'BLOC 3 — CONTROLE', exs: [
         _e('Reverse Sled Drag', 'Leger/modere · controle continu', 4, 20, 'c_reverse_sled_drag', 'A determiner', 'metres')
       ]})
@@ -156,7 +155,7 @@ window.LEGACY_WEEKS = {
     msg: MSG[5],
     seances: {
       a: lowerA(4, 8, 'Plus lourd, RPE 6-7 max', 3, 4, 6, 'Effort modere+ · garder respiration controlee'),
-      b: recoveryB('40-55', 'Physio complete · maintenir calme epaule', true),
+      b: recoveryB(4, 'Physio complete · maintenir calme epaule', true),
       c: lowerPullC(4, 10, 4, 3, 4, { label: 'BLOC 3 — CAPACITE', exs: [
         _e('Reverse Sled Drag', 'Modere · construire tolerance sans impact', 5, 20, 'c_reverse_sled_drag', 'A determiner', 'metres')
       ]})
@@ -171,10 +170,10 @@ window.LEGACY_WEEKS = {
     msg: MSG[6],
     seances: {
       a: lowerA(4, 8, 'Maintenir si fatigue elevee', 3, 4, 6, 'Qualite stable · pas de grind'),
-      b: recoveryB('40-55', 'Routine propre · noter sommeil/stress', true),
+      b: recoveryB(4, 'Routine propre · noter sommeil/stress', true),
       c: lowerPullC(4, 10, 4, 3, 4, { label: 'BLOC 3 — ENDURANCE LEGERE', exs: [
         _e('Reverse Sled Drag', 'Controle · effort soutenable', 5, 20, 'c_reverse_sled_drag', 'A determiner', 'metres'),
-        _e('Bird Dog', 'Stabilite tronc · lent', 2, '10/cote', null, null, 'reps')
+        _e('Bird Dog', 'Stabilite tronc · lent', 2, '10 / côté', null, null, 'reps')
       ]})
     }
   },
@@ -187,7 +186,7 @@ window.LEGACY_WEEKS = {
     msg: MSG[7],
     seances: {
       a: lowerA(5, 8, 'RPE 6-7, technique parfaite', 3, 4, 7, 'Modere · posture solide · terminer capable'),
-      b: recoveryB('45-60', 'Physio + marche · jour 5 optionnel seulement si frais', true),
+      b: recoveryB(4, 'Physio + marche · jour 5 optionnel seulement si frais', true),
       c: lowerPullC(4, 8, 4, 3, 4, { label: 'BLOC 3 — CAPACITE GENERALE', exs: [
         _e('Reverse Sled Drag', 'Modere · stable · aucun flare-up', 5, 20, 'c_reverse_sled_drag', 'A determiner', 'metres')
       ]})
@@ -202,7 +201,7 @@ window.LEGACY_WEEKS = {
     msg: MSG[8],
     seances: {
       a: lowerA(4, 8, 'Stabilisation, RPE 6', 3, 3, 5, 'Finir frais · pas de test max'),
-      b: recoveryB('45-60', 'Routine propre · bilan de tolerance', true),
+      b: recoveryB(5, 'Routine propre · bilan de tolerance', true),
       c: lowerPullC(3, 10, 3, 3, 3, { label: 'BLOC 3 — CONTROLE FINAL', exs: [
         _e('Reverse Sled Drag', 'Facile/modere · qualite avant volume', 4, 20, 'c_reverse_sled_drag', 'A determiner', 'metres')
       ]})
