@@ -98,6 +98,8 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
 .ex-input-wrap.disabled{opacity:0.35;pointer-events:none}
 .ex-input{width:100%;border:none;background:transparent;font-size:13px;font-weight:700;color:var(--orange);text-align:center;outline:none;font-family:'DM Sans',sans-serif}
 .ex-input::placeholder{color:rgba(200,90,0,0.3);font-weight:400}
+.ex-check-wrap{min-height:32px;background:var(--card2);border:1.5px solid var(--br);border-radius:8px;padding:5px 4px;display:flex;align-items:center;justify-content:center;gap:4px;font-size:9px;font-weight:700;color:var(--txt2);line-height:1;cursor:pointer}
+.ex-check{width:14px;height:14px;accent-color:var(--orange)}
 .finisher-card{background:var(--black);border-radius:14px;margin:8px 14px 0;padding:14px 16px;border-left:4px solid var(--orange)}
 .fin-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.07)}
 .fin-row:last-child{border-bottom:none}

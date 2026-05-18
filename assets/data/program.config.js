@@ -1,6 +1,6 @@
 // Programme Mathieu Richard - Legacy Protocol Reconstruction
-function _e(name, note, sets, reps, key, target, unit) {
-  return { name, note, sets, reps, key: key || null, target: target || null, unit: unit || 'lbs' };
+function _e(name, note, sets, reps, key, target, unit, inputType) {
+  return { name, note, sets, reps, key: key || null, target: target || null, unit: unit || 'lbs', inputType: inputType || 'number' };
 }
 
 const WU = {
@@ -32,7 +32,7 @@ function lowerA(setsBelt, repsBelt, beltTarget, splitSets, rdlSets, sledSets, sl
       ]},
       { label: 'BLOC 2 — CHAINE POSTERIEURE', exs: [
         _e('Romanian Deadlift avec straps', 'Tension legere/moderee · straps permis · epaule relachee', rdlSets, 10, 'a_rdl_straps', 'A determiner', 'lbs'),
-        _e('Bird Dog', 'Lent · bassin stable · respiration calme', 2, '8 / côté', null, null, 'reps')
+        _e('Bird Dog', 'Lent · bassin stable · respiration calme', 2, '8 / côté', 'a_bird_dog', 'Reps reelles', 'reps')
       ]}
     ],
     finisher: { label: 'FINISHER CAPACITE', exs: [
@@ -44,11 +44,11 @@ function lowerA(setsBelt, repsBelt, beltTarget, splitSets, rdlSets, sledSets, sl
 function recoveryB(breathingRounds, physioNote, includeOptionalDay) {
   const blocs = [
     { label: 'BLOC 1 — PHYSIO', exs: [
-      _e('Routine Physio Complete', physioNote, 1, 'Routine', null, 'A completer', 'reps')
+      _e('Routine Physio Complete', physioNote, 1, 'Routine', 'b_physio_complete', 'A completer', '', 'checkbox')
     ]},
     { label: 'BLOC 2 — SYSTEME NERVEUX', exs: [
-      _e('Marche', 'Rythme stable · respiration nasale si possible', 1, 30, null, '30 min', 'min'),
-      _e('Respiration diaphragmatique', 'Descendre le stress · expiration longue', breathingRounds, 1, null, 'Calme', 'rep')
+      _e('Marche', 'Rythme stable · respiration nasale si possible', 1, 30, 'b_marche_min', '30 min', 'min'),
+      _e('Respiration diaphragmatique', 'Descendre le stress · expiration longue', breathingRounds, 1, 'b_respiration_rounds', 'Rounds reels', 'rounds')
     ]}
   ];
   const finisher = includeOptionalDay
@@ -173,7 +173,7 @@ window.LEGACY_WEEKS = {
       b: recoveryB(4, 'Routine propre · noter sommeil/stress', true),
       c: lowerPullC(4, 10, 4, 3, 4, { label: 'BLOC 3 — ENDURANCE LEGERE', exs: [
         _e('Reverse Sled Drag', 'Controle · effort soutenable', 5, 20, 'c_reverse_sled_drag', 'A determiner', 'metres'),
-        _e('Bird Dog', 'Stabilite tronc · lent', 2, '10 / côté', null, null, 'reps')
+        _e('Bird Dog', 'Stabilite tronc · lent', 2, '10 / côté', 'c_bird_dog', 'Reps reelles', 'reps')
       ]})
     }
   },

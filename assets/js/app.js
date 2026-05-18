@@ -366,6 +366,7 @@ function getPreviousExerciseValue(weekNum, seanceId, key) {
 }
 
 function getExerciseTarget(ex, weekNum, seanceId) {
+  if(ex.inputType === 'checkbox') return ex.target || '';
   const previous = getPreviousExerciseValue(weekNum, seanceId, ex.key);
   if(previous) return 'Base: ' + previous + ' ' + (ex.unit || 'lbs');
   return ex.target || '';
@@ -373,6 +374,14 @@ function getExerciseTarget(ex, weekNum, seanceId) {
 
 function formatExerciseBadge(ex) {
   return String(ex.sets) + 'x' + String(ex.reps);
+}
+
+function buildRealInput(ex, placeholder) {
+  if(!ex.key) return `<div class="ex-input-wrap disabled"><input class="ex-input" placeholder="—" disabled></div>`;
+  if(ex.inputType === 'checkbox') {
+    return `<label class="ex-check-wrap"><input class="ex-check" type="checkbox" data-key="${ex.key}"><span>Complété</span></label>`;
+  }
+  return `<div class="ex-input-wrap"><input class="ex-input" type="number" placeholder="${placeholder || '—'}" data-key="${ex.key}"></div>`;
 }
 
 function buildExCard(exs, weekNum, seanceId) {
@@ -392,9 +401,7 @@ function buildExCard(exs, weekNum, seanceId) {
     const targetHtml = target
       ? `<div class="ex-target">${target}</div>`
       : `<div class="ex-target" style="opacity:0.4">—</div>`;
-    const inputHtml = ex.key
-      ? `<div class="ex-input-wrap"><input class="ex-input" type="number" placeholder="—" data-key="${ex.key}"></div>`
-      : `<div class="ex-input-wrap disabled"><input class="ex-input" placeholder="—" disabled></div>`;
+    const inputHtml = buildRealInput(ex, ex.unit || '—');
     h += `<div class="ex-row">
       <div>
         <div class="ex-name">${ex.name}</div>
@@ -414,7 +421,7 @@ function buildFinisherCard(fin, weekNum, seanceId) {
   fin.exs.forEach(ex => {
     const target = getExerciseTarget(ex, weekNum, seanceId);
     const inputHtml = ex.key
-      ? `<div class="ex-input-wrap" style="width:72px"><input class="ex-input" type="number" placeholder="lbs" data-key="${ex.key}"></div>`
+      ? `<div class="ex-input-wrap" style="width:72px"><input class="ex-input" type="number" placeholder="${ex.unit || '—'}" data-key="${ex.key}"></div>`
       : '';
     const timerHtml = (ex.unit === 'sec' || ex.unit === 'min')
       ? `<button class="timer-btn" onclick="startTimer(${ex.unit==='sec'?parseInt(ex.target)||60:60},'${ex.name}')">⏱</button>`
@@ -538,7 +545,9 @@ function restoreSeanceFields(weekNum, id) {
   if(s.charges) {
     Object.keys(s.charges).forEach(key => {
       const el = document.querySelector('#sub-' + id + ' [data-key="' + key + '"]');
-      if(el) el.value = s.charges[key];
+      if(!el) return;
+      if(el.type === 'checkbox') el.checked = s.charges[key] === 'complete';
+      else el.value = s.charges[key];
     });
   }
   if(panel && s.edits) {
@@ -561,7 +570,12 @@ function restoreSeanceFields(weekNum, id) {
 function persistSeanceFields(panel, record) {
   if(!panel || !record) return;
   if(!record.charges) record.charges = {};
-  panel.querySelectorAll('.ex-input[data-key]').forEach(el => {
+  panel.querySelectorAll('.ex-input[data-key], .ex-check[data-key]').forEach(el => {
+    if(el.type === 'checkbox') {
+      if(el.checked) record.charges[el.dataset.key] = 'complete';
+      else delete record.charges[el.dataset.key];
+      return;
+    }
     const val = String(el.value || '').trim();
     if(val) record.charges[el.dataset.key] = val;
     else delete record.charges[el.dataset.key];
@@ -586,8 +600,9 @@ function persistSeanceFields(panel, record) {
 function wireSeanceInputs(id) {
   const panel = document.getElementById('sub-' + id);
   if(!panel) return;
-  panel.querySelectorAll('.ex-input, .ex-editable, .ex-editable-rep, .notes-area').forEach(el => {
+  panel.querySelectorAll('.ex-input, .ex-check, .ex-editable, .ex-editable-rep, .notes-area').forEach(el => {
     el.addEventListener('input', () => autosaveDraft(id));
+    el.addEventListener('change', () => autosaveDraft(id));
   });
 }
 
@@ -1300,7 +1315,10 @@ function formatSeanceDetails(weekNum, seanceId, record) {
     if(detail.sets || detail.reps) {
       parts.push((detail.sets || ex.sets) + 'x' + (detail.reps || ex.reps));
     }
-    if(value) parts.push('réel: ' + value + ' ' + (ex.unit || 'lbs'));
+    if(value) {
+      if(ex.inputType === 'checkbox') parts.push('réel: complété');
+      else parts.push('réel: ' + value + ' ' + (ex.unit || 'lbs'));
+    }
     lines.push('- ' + ex.name + ': ' + parts.join(' · '));
   });
 
