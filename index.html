@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Legacy Protocol">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#F4F3EF">
+<title>Legacy Protocol — Portail Client</title>
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=Biryani:wght@400;600&display=swap" rel="stylesheet">
+<script src="portal.config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="assets/css/styles.css?v=20260512-clean1">
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-row">
+    <div>
+      <div class="hdr-protocol">LEGACY PROTOCOL - 100 JOURS</div>
+      <div class="hdr-name" id="hdr-name" ontouchstart="startPress()" ontouchend="endPress()" onmousedown="startPress()" onmouseup="endPress()">NOUVEAU CLIENT</div>
+    </div>
+    <div style="text-align:right">
+      <div class="clock" id="clock">--:--</div>
+      <div class="clock-date" id="clock-date">---</div>
+    </div>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="nav-btn active" onclick="showPanel('accueil',this)">ACCUEIL</button>
+  <button class="nav-btn" onclick="showPanel('entrainement',this)">ENTRA&Icirc;NEMENT</button>
+  <button class="nav-btn" onclick="showPanel('nutrition',this)">NUTRITION</button>
+  <button class="nav-btn" onclick="showPanel('checkin',this)">CHECK-IN</button>
+  <button class="nav-btn" onclick="showPanel('progression',this)">PROGRESSION</button>
+  <button class="nav-btn" onclick="showPanel('historique',this)">HISTORIQUE</button>
+</div>
+
+<!-- ═══ ACCUEIL ═══ -->
+<div class="panel active" id="panel-accueil">
+  <div class="home-hero">
+    <div class="faem-logo-wrap" id="faem-logo-wrap">
+      <img src="icon-512.png" style="width:100%;height:100%;object-fit:cover" alt="Portal logo">
+    </div>
+    <div class="home-sub">LEGACY PROTOCOL</div>
+    <div class="home-week" id="home-week-label">SEMAINE 1</div>
+    <div class="home-phase" id="home-phase-label">PHASE 1 — REINTRODUCTION</div>
+  </div>
+  <div class="week-msg" id="week-msg-card">
+    <div class="week-msg-body" id="week-msg-body">Chargement...</div>
+    <div class="week-msg-sig">&#8212; Max</div>
+  </div>
+  <div class="home-btns">
+    <button class="home-btn home-btn-dark" onclick="showPanel('entrainement',document.querySelectorAll('.nav-btn')[1])">
+      <div class="home-btn-label">ENTRA&Icirc;NEMENT</div>
+      <div class="home-btn-sub">Ouvre la semaine active</div>
+    </button>
+    <button class="home-btn home-btn-orange" onclick="showPanel('checkin',document.querySelectorAll('.nav-btn')[3])">
+      <div class="home-btn-label">CHECK-IN</div>
+      <div class="home-btn-sub">Soumettre cette semaine</div>
+    </button>
+  </div>
+  <div class="week-status">
+    <div class="ws-card">
+      <div class="ws-label">S&Eacute;ANCE A</div>
+      <div class="ws-indicator" id="ws-a">&#9711;</div>
+    </div>
+    <div class="ws-card">
+      <div class="ws-label">S&Eacute;ANCE B</div>
+      <div class="ws-indicator" id="ws-b">&#9711;</div>
+    </div>
+    <div class="ws-card">
+      <div class="ws-label">S&Eacute;ANCE C</div>
+      <div class="ws-indicator" id="ws-c">&#9711;</div>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-cell">
+      <div class="stat-n" id="stat-seances">0</div>
+      <div class="stat-l">S&Eacute;ANCES</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-n" id="stat-checkins">0</div>
+      <div class="stat-l">CHECK-INS</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-n green" id="stat-poids">--</div>
+      <div class="stat-l">LBS PERDUS</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <div class="card-hdr">
+      <div class="cdot" style="background:var(--orange)"></div>
+      <div class="ctitle">POIDS CETTE SEMAINE</div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-container">
+        <canvas id="homeWeightChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="checkin-cta" onclick="showPanel('checkin',document.querySelectorAll('.nav-btn')[3])">
+    <div class="checkin-cta-label">SOUMETTRE LE CHECK-IN HEBDOMADAIRE</div>
+    <div class="checkin-cta-sub">D&eacute;verrouille la semaine suivante</div>
+  </div>
+  <div class="spacer"></div>
+</div>
+
+<!-- ═══ ENTRA&Icirc;NEMENT ═══ -->
+<div class="panel" id="panel-entrainement">
+  <div class="seance-hdr">
+    <div class="seance-protocol" id="ent-protocol">LEGACY PROTOCOL</div>
+    <div class="seance-title-row">
+      <div class="seance-title" id="ent-title">SEMAINE 1</div>
+      <div class="seance-day" id="ent-phase">PHASE 1 — REINTRODUCTION</div>
+    </div>
+    <div class="seance-desc" id="ent-desc">55% DU 1RM &middot; R&Eacute;P&Eacute;TITIONS PROPRES</div>
+  </div>
+  <div class="week-nav" id="week-nav-entrainement"></div>
+  <div class="sub-nav">
+    <button class="sub-btn active" onclick="showSeance('a',this)">S&Eacute;ANCE A &middot; GYM</button>
+    <button class="sub-btn" onclick="showSeance('b',this)">S&Eacute;ANCE B &middot; GYM</button>
+    <button class="sub-btn" onclick="showSeance('c',this)">S&Eacute;ANCE C &middot; LOWER + PULL</button>
+  </div>
+  <div class="sub-panel active" id="sub-a"></div>
+  <div class="sub-panel" id="sub-b"></div>
+  <div class="sub-panel" id="sub-c"></div>
+</div>
+<!-- ═══ NUTRITION ═══ -->
+<div class="panel" id="panel-nutrition" data-nutrition-source="assets/data/nutrition.html?v=20260512-clean1"></div>
+
+<!-- ═══ CHECK-IN ═══ -->
+<div class="panel" id="panel-checkin">
+  <div class="seance-hdr">
+    <div class="seance-protocol">LEGACY PROTOCOL &mdash; CHECK-IN HEBDOMADAIRE</div>
+    <div class="seance-title-row">
+      <div class="seance-title">CHECK-IN</div>
+    </div>
+    <div class="seance-desc">COMPLETER CHAQUE DIMANCHE &bull; D&Eacute;VERROUILLE LA SEMAINE SUIVANTE</div>
+  </div>
+  <div class="ci-last-ref" id="ci-last-ref">
+    <div class="ci-last-ref-label">DERNIER CHECK-IN SAUVEGARD&Eacute;</div>
+    <div class="ci-last-ref-content" id="ci-last-ref-content"></div>
+  </div>
+  <div class="checkin-form">
+    <div class="ci-row">
+      <div class="ci-top">
+        <div>
+          <div class="ci-label">POIDS CORPOREL</div>
+          <div class="ci-sub">Mesure le matin &agrave; jeun</div>
+        </div>
+        <input type="number" class="ci-input" id="ci-poids" placeholder="198.6" step="0.1" min="100" max="400">
+      </div>
+    </div>
+    <div class="ci-row">
+      <div class="ci-top">
+        <div>
+          <div class="ci-label">&Eacute;NERGIE GLOBALE</div>
+          <div class="ci-sub">Cette semaine dans l'ensemble</div>
+        </div>
+        <div class="ci-val" id="ci-energie-val">5</div>
+      </div>
+      <input type="range" class="ci-slider" id="ci-energie" min="1" max="10" value="5" oninput="updateSlider('energie',this.value)">
+    </div>
+    <div class="ci-row">
+      <div class="ci-top">
+        <div>
+          <div class="ci-label">QUALIT&Eacute; DU SOMMEIL</div>
+          <div class="ci-sub">Moyenne cette semaine</div>
+        </div>
+        <div class="ci-val" id="ci-sommeil-val">5</div>
+      </div>
+      <input type="range" class="ci-slider" id="ci-sommeil" min="1" max="10" value="5" oninput="updateSlider('sommeil',this.value)">
+    </div>
+    <div class="ci-row">
+      <div class="ci-top">
+        <div>
+          <div class="ci-label">NIVEAU DE STRESS</div>
+          <div class="ci-sub">1=très bas &bull; 10=extrêmement haut</div>
+        </div>
+        <div class="ci-val" id="ci-stress-val">5</div>
+      </div>
+      <input type="range" class="ci-slider" id="ci-stress" min="1" max="10" value="5" oninput="updateSlider('stress',this.value)">
+    </div>
+    <div class="ci-row">
+      <div class="ci-label">NOTES DE LA SEMAINE</div>
+      <div class="ci-sub" style="margin-bottom:10px">Comment tu te sens ? Points forts, difficult&eacute;s, observations</div>
+      <textarea class="notes-area" id="ci-note" placeholder="Ex: Semaine difficile au travail, mais les s&eacute;ances sont solides. Le RDL &agrave; 190 lbs commence &agrave; se sentir stable..." style="height:90px"></textarea>
+    </div>
+  </div>
+  <div class="photo-grid">
+    <div class="photo-slot" onclick="triggerPhoto(0)">
+      <img id="photo-0" alt="">
+      <div class="photo-slot-plus">+</div>
+      <div class="photo-slot-label">FACE</div>
+    </div>
+    <div class="photo-slot" onclick="triggerPhoto(1)">
+      <img id="photo-1" alt="">
+      <div class="photo-slot-plus">+</div>
+      <div class="photo-slot-label">PROFIL</div>
+    </div>
+    <div class="photo-slot" onclick="triggerPhoto(2)">
+      <img id="photo-2" alt="">
+      <div class="photo-slot-plus">+</div>
+      <div class="photo-slot-label">DOS</div>
+    </div>
+  </div>
+  <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="handlePhoto(event)">
+  <div class="photo-hint">Photos de progression &mdash; stock&eacute;es localement sur cet appareil</div>
+  <button class="report-btn" onclick="sendWeeklyReport()" style="margin-bottom:0">
+    <div class="report-btn-label">&#128229; ENVOYER LE CHECK-IN</div>
+    <div class="report-btn-sub">Sauvegarde, d&eacute;verrouille la semaine suivante et envoie &agrave; Max</div>
+  </button>
+  <input type="file" id="import-input" accept="application/json,.json" style="display:none" onchange="handleImport(event)">
+  <div class="spacer"></div>
+</div>
+
+<!-- ═══ PROGRESSION ═══ -->
+<div class="panel" id="panel-progression">
+  <div class="seance-hdr">
+    <div class="seance-protocol">LEGACY PROTOCOL &mdash; PROGRESSION</div>
+    <div class="seance-title-row">
+      <div class="seance-title">PROGRESSION</div>
+    </div>
+    <div class="seance-desc">VOS DONN&Eacute;ES ENREGISTR&Eacute;ES &bull; MISE &Agrave; JOUR AUX CHECK-INS</div>
+  </div>
+  <div class="stats-row" style="margin:14px 14px 0">
+    <div class="stat-cell">
+      <div class="stat-n" id="prog-debut">--</div>
+      <div class="stat-l">POIDS D&Eacute;BUT</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-n green" id="prog-delta">--</div>
+      <div class="stat-l">LBS PERDUS</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-n" id="prog-actuel">--</div>
+      <div class="stat-l">POIDS ACTUEL</div>
+    </div>
+  </div>
+  <div class="prog-chart-card">
+    <div class="prog-chart-hdr">
+      <div class="prog-chart-title">COURBE DE POIDS</div>
+      <div class="prog-chart-badge" id="prog-trend">--</div>
+    </div>
+    <div class="prog-chart-body">
+      <div class="chart-container" style="height:180px">
+        <canvas id="weightChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="prog-chart-card">
+    <div class="prog-chart-hdr">
+      <div class="prog-chart-title">CHARGES COMPOS&Eacute;S</div>
+      <div class="prog-chart-badge">LBS</div>
+    </div>
+    <div class="prog-chart-body">
+      <div class="prog-legend">
+        <div class="prog-leg-item"><div class="prog-leg-dot" style="background:#C85A00"></div>Row</div>
+        <div class="prog-leg-item"><div class="prog-leg-dot" style="background:#4CAF50"></div>RDL</div>
+        <div class="prog-leg-item"><div class="prog-leg-dot" style="background:#2196F3"></div>Leg Press / Goblet</div>
+      </div>
+      <div class="chart-container" style="height:180px">
+        <canvas id="chargesChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="prog-chart-card">
+    <div class="prog-chart-hdr">
+      <div class="prog-chart-title">BIEN-&Ecirc;TRE HEBDOMADAIRE</div>
+      <div class="prog-chart-badge">/10</div>
+    </div>
+    <div class="prog-chart-body">
+      <div class="prog-legend">
+        <div class="prog-leg-item"><div class="prog-leg-dot" style="background:#C85A00"></div>&Eacute;nergie</div>
+        <div class="prog-leg-item"><div class="prog-leg-dot" style="background:#4CAF50"></div>Sommeil</div>
+        <div class="prog-leg-item"><div class="prog-leg-dot" style="background:#c0392b"></div>Stress</div>
+      </div>
+      <div class="chart-container" style="height:180px">
+        <canvas id="bilanChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+</div>
+
+<!-- ═══ HISTORIQUE ═══ -->
+<div class="panel" id="panel-historique">
+  <div class="seance-hdr">
+    <div class="seance-protocol">LEGACY PROTOCOL &mdash; HISTORIQUE</div>
+    <div class="seance-title-row">
+      <div class="seance-title">HISTORIQUE</div>
+    </div>
+    <div class="seance-desc">TOUTES VOS S&Eacute;ANCES &bull; CHECK-INS &bull; NOTES</div>
+  </div>
+  <div id="historique-container" style="padding-bottom:20px">
+    <div class="chart-empty" style="margin:20px 14px"><span class="chart-empty-txt">Aucune donn&eacute;e enregistr&eacute;e</span></div>
+  </div>
+</div>
+
+<!-- ═══ MODALS ═══ -->
+<div class="reset-modal" id="reset-modal">
+  <div class="reset-box">
+    <div class="reset-warning">&#9888;</div>
+    <div class="reset-title">R&Eacute;INITIALISER</div>
+    <div class="reset-sub">Toutes vos s&eacute;ances, check-ins et photos seront effac&eacute;s.<br>Cette action est irr&eacute;versible.</div>
+    <button class="reset-confirm-btn" id="reset-confirm-btn" disabled onclick="confirmReset()">CONFIRMER LA SUPPRESSION</button>
+    <button class="reset-cancel-btn" onclick="closeResetModal()">ANNULER</button>
+    <div class="reset-countdown" id="reset-countdown">Attendre 3 secondes...</div>
+  </div>
+</div>
+<div class="timer-modal" id="timer-modal">
+  <div class="timer-box">
+    <div class="timer-exname" id="timer-exname">REPOS</div>
+    <div class="timer-big" id="timer-display">0:00</div>
+    <button class="timer-close" onclick="closeTimer()">FERMER</button>
+  </div>
+</div>
+
+
+<script src="assets/data/program.config.js?v=20260512-clean1"></script>
+<script src="assets/js/app.js?v=20260512-clean1"></script>
+</body>
+</html>
