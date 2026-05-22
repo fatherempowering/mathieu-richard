@@ -48,7 +48,7 @@ function recoveryB(breathingRounds, physioNote, includeOptionalDay) {
     ]},
     { label: 'BLOC 2 — SYSTEME NERVEUX', exs: [
       _e('Marche', 'Rythme stable · respiration nasale si possible', 1, 30, 'b_marche_min', '30 min', 'min'),
-      _e('Respiration diaphragmatique', 'Descendre le stress · expiration longue', breathingRounds, 1, 'b_respiration_rounds', 'Rounds reels', 'rounds')
+      _e('Respiration Wim Hof', 'Effectuer le nombre de rounds indique · assis ou couche · jamais debout, en voiture ou dans l eau · arreter si etourdissement', '—', breathingRounds + ' rounds', 'b_respiration_rounds', breathingRounds + ' rounds a completer', 'rounds', 'rounds')
     ]}
   ];
   const finisher = includeOptionalDay
